@@ -1,5 +1,5 @@
 <div id="app" class="mb-12">
-    <h1 class="heading text-xl text-center mb-4">{{ greeting }}</h1>
+    <h1 class="heading text-2xl text-center mb-4">{{ greeting }}</h1>
     <div class="stories-container grid grid-cols-4 gap-2 w-full">
         <% stories.forEach(story=> { %>
             <div class="single-story flex flex-col border m-auto mb-4">
@@ -14,9 +14,21 @@
                 </div>
             </div>
         <% }); %>
+            <div v-for="story in newStories" :key="story.publich_date + story.title" class="single-story flex flex-col border m-auto mb-4">
+                <div class="upper-row flex items-center justify-between p-2">
+                    <div class="story-name text-lg">{{story.title}}</div>
+                    <div class="story-date text-sm">{{story.publish_date}}</div>
+                </div>
+                <img :src="story.preview">
+                <div class="author-row flex items-center justify-between p-2">
+                    <span class="text-sm">{{ story.author.username }}</span>
+                    <img class="w-12 h-12 rounded-full object-cover" :src="story.author.avatar">
+                </div>
+            </div>
     </div>
 
     <button
+        v-show="!isEnd"
         @click="loadStories"
         class="text-lg text-center uppercase font-semibold
         bg-blue-500 text-white p-4 rounded
@@ -30,19 +42,33 @@
   const LIMIT = 10;
   window.Stories = JSON.parse('<%- JSON.stringify(stories) %>')
 
-
   var app = new Vue({
     el: '#app',
     data: {
-      stories: window.Stories,
+      newStories: [],
       offset: window.Stories.length,
+      isEnd: false,
       greeting: 'Stories',
     },
     methods: {
       async loadStories() {
-        const res = await axios.get(`allStories/?offset=${this.offset}&limit=${LIMIT}`);
-        console.log(res.data);
-      }
+        await axios.get(`allStories/?offset=${this.offset}&limit=${LIMIT}`).then((res)=> {
+
+          if (res.data) {
+            this.newStories.push(...res.data);
+            this.offset += res.data.length;
+
+            if (res.data.length < 10) {
+              this.isEnd = true;
+            }
+
+          } else {
+            this.isEnd = true;
+          }
+
+        });
+      },
+
     }
   })
 </script>
