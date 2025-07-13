@@ -28,14 +28,14 @@
 </div>
 <script>
   const LIMIT = 10;
+  window.Stories = JSON.parse('<%- JSON.stringify(stories) %>')
 
-  console.log(<%- JSON.stringify(stories) %>)
-  localStorage.setItem("stories", <%- JSON.stringify(stories) %>);
-  let localStories = JSON.parse(localStorage.getItem("stories"));
 
   var app = new Vue({
     el: '#app',
     data: {
+      stories: window.Stories,
+      offset: window.Stories.length,
       greeting: 'Stories',
     },
     methods: {
